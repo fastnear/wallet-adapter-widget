@@ -1,6 +1,6 @@
 import { connect, KeyPair } from "near-api-js";
 import { BrowserLocalStorageKeyStore } from 'near-api-js/lib/key_stores';
-import { MeteorWallet } from "@meteorwallet/sdk";
+import { MeteorWallet } from "@fastnear/meteorwallet-sdk";
 
 async function createMeteorWalletInstance({ networkId = "mainnet" }) {
   const keyStore = new BrowserLocalStorageKeyStore(window.localStorage, "_meteor_wallet");

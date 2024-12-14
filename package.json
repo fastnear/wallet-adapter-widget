@@ -17,8 +17,8 @@
     "util": "^0.12.5"
   },
   "dependencies": {
+    "@fastnear/meteorwallet-sdk": "^1.0.9",
     "@here-wallet/core": "^3.3.1",
-    "@meteorwallet/sdk": "^1.0.9",
     "browserify-fs": "^1.0.0",
     "events": "^3.3.0",
     "events-browserify": "^0.0.1",
