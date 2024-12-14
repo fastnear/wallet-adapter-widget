@@ -1,11 +1,16 @@
 import { wallets } from './wallets.js';
 
-const params = Object.fromEntries(new URLSearchParams(window.location.search));
-for (const [key, value] of Object.entries(params)) {
-  try {
-    params[key] = JSON.parse(value);
-  } catch {}
-}
+let params = {};
+
+window.addEventListener('message', (event) => {
+  params = event.data.params || {};
+  
+  if (event.data.method === 'signIn') {
+    handleLogin();
+  } else if (event.data.method === 'sendTransaction') {
+    handleSign();
+  }
+});
 
 async function handleLogin() {
   function setupWalletList() {
