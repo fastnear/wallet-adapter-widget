@@ -1,6 +1,7 @@
 import * as esbuild from 'esbuild';
 import { copyFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
+import path from 'path';
 
 const WATCH = process.argv.includes('--watch');
 
@@ -24,7 +25,27 @@ const buildOptions = {
   loader: {
     '.png': 'dataurl',
     '.svg': 'dataurl'
-  }
+  },
+  target: ['es2020'],
+  platform: 'browser',
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    'global': 'window',
+  },
+  inject: [path.join(new URL('.', import.meta.url).pathname, 'src/polyfills.js')],
+  alias: {
+    // Add browser-compatible alternatives for Node.js built-in modules
+    crypto: 'crypto-browserify',
+    stream: 'stream-browserify',
+    buffer: 'buffer',
+    util: 'util',
+    path: 'path-browserify',
+    http: 'stream-http',
+    https: 'https-browserify',
+    events: 'events',
+    url: 'url',
+    fs: 'browserify-fs'
+  },
 };
 
 if (WATCH) {

@@ -8,12 +8,23 @@
     "start": "serve dist"
   },
   "devDependencies": {
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
     "esbuild": "^0.19.0",
-    "serve": "^14.2.0"
+    "path-browserify": "^1.0.1",
+    "serve": "^14.2.0",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.5"
   },
   "dependencies": {
     "@here-wallet/core": "^3.3.1",
     "@meteorwallet/sdk": "^1.0.9",
-    "near-api-js": "^2.1.0"
+    "browserify-fs": "^1.0.0",
+    "events": "^3.3.0",
+    "events-browserify": "^0.0.1",
+    "https-browserify": "^1.0.0",
+    "near-api-js": "^2.1.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.4"
   }
 }
