@@ -2,7 +2,7 @@ import { KeyPair } from "near-api-js";
 
 export function createNearAdapter() {
   return {
-    async signIn({ networkId, contractId }) {
+    async signIn({ networkId, contractId, callbackUrl }) {
       const walletUrl = networkId === 'mainnet' 
         ? 'https://app.mynearwallet.com'
         : 'https://testnet.mynearwallet.com';
@@ -12,8 +12,8 @@ export function createNearAdapter() {
       const url = new URL(`${walletUrl}/login`);
       url.searchParams.set('contract_id', contractId);
       url.searchParams.set('public_key', keyPair.getPublicKey().toString());
-      url.searchParams.set('success_url', window.location.href);
-      url.searchParams.set('failure_url', window.location.href);
+      url.searchParams.set('success_url', callbackUrl);
+      url.searchParams.set('failure_url', callbackUrl);
 
       return {
         url: url.toString(),
@@ -25,17 +25,22 @@ export function createNearAdapter() {
       };
     },
 
-    async sendTransaction({ receiverId, actions, state }) {
+    async sendTransaction({ receiverId, actions, state, callbackUrl }) {
       if (!state?.accountId) {
         throw new Error('Not signed in');
       }
 
-      const url = new URL(`${state.walletUrl}/sign`);
-      url.searchParams.set('transactions', JSON.stringify([{
+      const url = new URL('sign', state.walletUrl);
+      const transactions = [{
         signerId: state.accountId,
         receiverId,
         actions
-      }]));
+      }];
+
+      url.searchParams.set('transactions', transactions
+        .map(transaction => Buffer.from(JSON.stringify(transaction)).toString('base64'))
+        .join(','));
+      url.searchParams.set('callbackUrl', callbackUrl);
 
       return { url: url.toString() };
     }
