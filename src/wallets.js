@@ -1,6 +1,6 @@
-import { hereIcon } from './icons/here.js';
-import { nearIcon } from './icons/near.js';
-import { meteorIcon } from './icons/meteor.js';
+import hereIcon from './icons/here.js';
+import nearIcon from './icons/near.js';
+import meteorIcon from './icons/meteor.js';
 import { createHereAdapter } from './adapters/here.js';
 import { createNearAdapter } from './adapters/near.js';
 import { createMeteorAdapter } from './adapters/meteor.js';
