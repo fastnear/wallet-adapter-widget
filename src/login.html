@@ -88,6 +88,9 @@
         <h1>Connect Wallet</h1>
         <ul class="wallet-list" id="walletList"></ul>
     </div>
-    <script type="module" src="./main.js"></script>
+    <script type="module">
+        import { handleLogin } from './main.js';
+        handleLogin();
+    </script>
 </body>
 </html>

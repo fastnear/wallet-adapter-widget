@@ -90,8 +90,4 @@ async function handleSign() {
   }
 }
 
-if (window.location.pathname.includes('login.html')) {
-  handleLogin();
-} else if (window.location.pathname.includes('sign.html')) {
-  handleSign();
-}
+export { handleLogin, handleSign };
