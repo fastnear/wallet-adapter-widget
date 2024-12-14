@@ -3,11 +3,18 @@ import { wallets } from './wallets.js';
 let params = {};
 
 window.addEventListener('message', (event) => {
-  params = event.data.params || {};
-  
+  // Only accept messages from the parent window
+  if (event.source !== window.parent) {
+    return;
+  }
+
   if (event.data.method === 'signIn') {
+    params = event.data.params || {};
+
     handleLogin();
   } else if (event.data.method === 'sendTransaction') {
+    params = event.data.params || {};
+
     handleSign();
   }
 });
@@ -69,7 +76,7 @@ async function handleLogin() {
 async function handleSign() {
   const { state = {} } = params;
   const wallet = wallets.find(w => w.id === state.lastWalletId);
-  
+
   if (!wallet) {
     window.parent.postMessage({
       type: 'wallet-adapter',
