@@ -1,6 +1,6 @@
 {
   "name": "@fastnear/wallet-adapter-widget",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "serve dist & node esbuild.js --watch",
@@ -25,6 +25,8 @@
     "https-browserify": "^1.0.0",
     "near-api-js": "^2.1.0",
     "stream-http": "^3.2.0",
-    "url": "^0.11.4"
+    "url": "^0.11.4",
+    "base58-js": "=2.0.0",
+    "borsh": "^2.0.0"
   }
 }

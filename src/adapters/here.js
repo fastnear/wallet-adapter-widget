@@ -10,24 +10,25 @@ export function createHereAdapter() {
       return {
         state: {
           accountId,
-          privateKey: key.toString()
-        }
+          privateKey: key.toString(),
+          networkId,
+        },
       };
     },
 
-    async sendTransaction({ receiverId, actions, state }) {
+    async sendTransactions({ receiverId, actions, state }) {
       if (!state?.accountId) {
-        throw new Error('Not signed in');
+        throw new Error("Not signed in");
       }
 
-      const here = await HereWallet.connect();
-      
+      const here = await HereWallet.connect({ networkId: state?.networkId });
+
       const result = await here.signAndSendTransaction({
         signerId: state.accountId,
         receiverId,
         actions: actions.map(({ functionCall, ...action }) => {
           if (!functionCall) {
-            throw new Error('Only functionCall actions are supported');
+            throw new Error("Only functionCall actions are supported");
           }
           return {
             type: "FunctionCall",
@@ -36,12 +37,12 @@ export function createHereAdapter() {
               args: functionCall.args,
               gas: functionCall.gas.toString(),
               deposit: functionCall.deposit.toString(),
-            }
+            },
           };
-        })
+        }),
       });
 
       return { hash: result.transaction.hash };
-    }
+    },
   };
 }
