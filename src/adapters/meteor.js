@@ -1,6 +1,7 @@
 import { connect, KeyPair } from "near-api-js";
 import { BrowserLocalStorageKeyStore } from "near-api-js/lib/key_stores";
 import { MeteorWallet } from "@fastnear/meteorwallet-sdk";
+import { mapActionForWalletSelector } from "../utils/actionToWalletSelector.js";
 
 async function createMeteorWalletInstance({ networkId = "mainnet" }) {
   const keyStore = new BrowserLocalStorageKeyStore(
@@ -48,7 +49,7 @@ export function createMeteorAdapter() {
       };
     },
 
-    async sendTransactions({ receiverId, actions, state }) {
+    async sendTransactions({ state, transactions }) {
       if (!state?.accountId) {
         throw new Error("Not signed in");
       }
@@ -56,14 +57,33 @@ export function createMeteorAdapter() {
       const wallet = await createMeteorWalletInstance({
         networkId: state?.networkId,
       });
-      const account = wallet.account();
+      try {
+        const response = await wallet.requestSignTransactions({
+          transactions: transactions.map(
+            ({ signerId, receiverId, actions }) => {
+              if (signerId && signerId !== state.accountId) {
+                throw new Error("Invalid signer");
+              }
+              return {
+                signerId: state.accountId,
+                receiverId,
+                actions: actions.map(mapActionForWalletSelector),
+              };
+            }
+          ),
+        });
 
-      const response = await account.signAndSendTransaction_direct({
-        receiverId,
-        actions,
-      });
-
-      return { hash: response.transaction.hash };
+        return { outcomes: response };
+      } catch (error) {
+        if (
+          error.message === "User cancelled the action" ||
+          error.message ===
+            "User closed the window before completing the action"
+        ) {
+          return { rejected: true };
+        }
+        throw new Error(error);
+      }
     },
   };
 }

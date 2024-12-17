@@ -71,7 +71,9 @@ export function mapActionForBorsh(action) {
         stake: {
           stake: BigInt(action.stake),
           publicKey: {
-            ed25519Key: keyFromString(action.publicKey),
+            ed25519Key: {
+              data: keyFromString(action.publicKey),
+            },
           },
         },
       };
@@ -79,7 +81,11 @@ export function mapActionForBorsh(action) {
     case "AddKey": {
       return {
         addKey: {
-          publicKey: keyFromString(action.publicKey),
+          publicKey: {
+            ed25519Key: {
+              data: keyFromString(action.publicKey),
+            },
+          },
           accessKey: {
             nonce: BigInt(action.accessKey.nonce),
             permission:
@@ -101,7 +107,11 @@ export function mapActionForBorsh(action) {
     case "DeleteKey": {
       return {
         deleteKey: {
-          publicKey: keyFromString(action.publicKey),
+          publicKey: {
+            ed25519Key: {
+              data: keyFromString(action.publicKey),
+            },
+          },
         },
       };
     }

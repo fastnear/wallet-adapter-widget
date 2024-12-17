@@ -102,25 +102,51 @@ async function handleSend() {
     return;
   }
 
-  try {
-    const result = await wallet.adapter.sendTransactions(params);
-    window.parent.postMessage(
-      {
-        type: "wallet-adapter",
-        id: params.id,
-        payload: result,
-      },
-      "*"
-    );
-  } catch (error) {
-    window.parent.postMessage(
-      {
-        type: "wallet-adapter",
-        id: params.id,
-        payload: { error: error.message },
-      },
-      "*"
-    );
+  if (state.lastWalletId === "meteor") {
+    const sendButton = document.getElementById("sign-transaction");
+    sendButton.addEventListener("click", async () => {
+      try {
+        const result = await wallet.adapter.sendTransactions(params);
+        window.parent.postMessage(
+          {
+            type: "wallet-adapter",
+            id: params.id,
+            payload: result,
+          },
+          "*"
+        );
+      } catch (error) {
+        window.parent.postMessage(
+          {
+            type: "wallet-adapter",
+            id: params.id,
+            payload: { error: error.message },
+          },
+          "*"
+        );
+      }
+    });
+  } else {
+    try {
+      const result = await wallet.adapter.sendTransactions(params);
+      window.parent.postMessage(
+        {
+          type: "wallet-adapter",
+          id: params.id,
+          payload: result,
+        },
+        "*"
+      );
+    } catch (error) {
+      window.parent.postMessage(
+        {
+          type: "wallet-adapter",
+          id: params.id,
+          payload: { error: error.message },
+        },
+        "*"
+      );
+    }
   }
 }
 

@@ -1,4 +1,5 @@
 import { transactions, utils } from "near-api-js";
+import { fromBase64 } from "./utils.js";
 
 const getAccessKey = (permission) => {
   if (permission === "FullAccess") {
@@ -13,14 +14,13 @@ const getAccessKey = (permission) => {
   return transactions.functionCallAccessKey(receiverId, methodNames, allowance);
 };
 
-export const mapActionToNearApi = (action) => {
-  switch (action.type) {
+export const mapActionForWalletSelector = (action) => {
+  const type = action.type;
+  switch (type) {
     case "CreateAccount":
-      return transactions.createAccount();
+      return action;
     case "DeployContract": {
-      const { code } = action.params;
-
-      return transactions.deployContract(code);
+      return { type, params: { code: fromBase64(action.codeBase64) } };
     }
     case "FunctionCall": {
       const { methodName, args, gas, deposit } = action.params;
@@ -33,9 +33,7 @@ export const mapActionToNearApi = (action) => {
       );
     }
     case "Transfer": {
-      const { deposit } = action.params;
-
-      return transactions.transfer(BigInt(deposit));
+      return { type, params: { deposit: action.deposit } };
     }
     case "Stake": {
       const { stake, publicKey } = action.params;
