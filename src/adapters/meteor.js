@@ -82,6 +82,7 @@ export function createMeteorAdapter() {
         ) {
           return { rejected: true };
         }
+        console.log(error);
         throw new Error(error);
       }
     },

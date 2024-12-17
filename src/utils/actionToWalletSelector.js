@@ -1,18 +1,4 @@
-import { transactions, utils } from "near-api-js";
 import { fromBase64 } from "./utils.js";
-
-const getAccessKey = (permission) => {
-  if (permission === "FullAccess") {
-    return transactions.fullAccessKey();
-  }
-
-  const { receiverId, methodNames = [] } = permission;
-  const allowance = permission.allowance
-    ? BigInt(permission.allowance)
-    : undefined;
-
-  return transactions.functionCallAccessKey(receiverId, methodNames, allowance);
-};
 
 export const mapActionForWalletSelector = (action) => {
   const type = action.type;
@@ -23,41 +9,39 @@ export const mapActionForWalletSelector = (action) => {
       return { type, params: { code: fromBase64(action.codeBase64) } };
     }
     case "FunctionCall": {
-      const { methodName, args, gas, deposit } = action.params;
-
-      return transactions.functionCall(
-        methodName,
-        args,
-        BigInt(gas),
-        BigInt(deposit)
-      );
+      return {
+        type,
+        params: {
+          methodName: action.methodName,
+          args: action.argsBase64 ? fromBase64(action.argsBase64) : action.args,
+          gas: action.gas,
+          deposit: action.deposit,
+        },
+      };
     }
     case "Transfer": {
       return { type, params: { deposit: action.deposit } };
     }
     case "Stake": {
-      const { stake, publicKey } = action.params;
-
-      return transactions.stake(BigInt(stake), utils.PublicKey.from(publicKey));
+      return {
+        type,
+        params: { stake: action.stake, publicKey: action.publicKey },
+      };
     }
     case "AddKey": {
-      const { publicKey, accessKey } = action.params;
-
-      return transactions.addKey(
-        utils.PublicKey.from(publicKey),
-        // TODO: Use accessKey.nonce? near-api-js seems to think 0 is fine?
-        getAccessKey(accessKey.permission)
-      );
+      return {
+        type,
+        params: {
+          publicKey: action.publicKey,
+          accessKey: action.accessKey,
+        },
+      };
     }
     case "DeleteKey": {
-      const { publicKey } = action.params;
-
-      return transactions.deleteKey(utils.PublicKey.from(publicKey));
+      return { type, params: { publicKey: action.publicKey } };
     }
     case "DeleteAccount": {
-      const { beneficiaryId } = action.params;
-
-      return transactions.deleteAccount(beneficiaryId);
+      return { type, params: { beneficiaryId: action.beneficiaryId } };
     }
     default:
       throw new Error("Invalid action type");

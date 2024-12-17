@@ -1,4 +1,5 @@
 import { HereWallet } from "@here-wallet/core";
+import { mapActionForWalletSelector } from "../utils/actionToWalletSelector.js";
 
 export function createHereAdapter() {
   return {
@@ -16,33 +17,41 @@ export function createHereAdapter() {
       };
     },
 
-    async sendTransactions({ receiverId, actions, state }) {
+    async sendTransactions({ state, transactions }) {
       if (!state?.accountId) {
         throw new Error("Not signed in");
       }
 
-      const here = await HereWallet.connect({ networkId: state?.networkId });
+      const wallet = await HereWallet.connect({ networkId: state?.networkId });
 
-      const result = await here.signAndSendTransaction({
-        signerId: state.accountId,
-        receiverId,
-        actions: actions.map(({ functionCall, ...action }) => {
-          if (!functionCall) {
-            throw new Error("Only functionCall actions are supported");
-          }
-          return {
-            type: "FunctionCall",
-            params: {
-              methodName: functionCall.methodName,
-              args: functionCall.args,
-              gas: functionCall.gas.toString(),
-              deposit: functionCall.deposit.toString(),
-            },
-          };
-        }),
-      });
+      try {
+        const response = await wallet.signAndSendTransactions({
+          transactions: transactions.map(
+            ({ signerId, receiverId, actions }) => {
+              if (signerId && signerId !== state.accountId) {
+                throw new Error("Invalid signer");
+              }
+              return {
+                signerId: state.accountId,
+                receiverId,
+                actions: actions.map(mapActionForWalletSelector),
+              };
+            }
+          ),
+        });
 
-      return { hash: result.transaction.hash };
+        return { outcomes: response };
+      } catch (error) {
+        console.log(error);
+        // if (
+        //   error.message === "User cancelled the action" ||
+        //   error.message ===
+        //     "User closed the window before completing the action"
+        // ) {
+        //   return { rejected: true };
+        // }
+        throw new Error(error);
+      }
     },
   };
 }
