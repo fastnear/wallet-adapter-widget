@@ -9,20 +9,17 @@ const walletUrl = (networkId) =>
 
 export function createNearAdapter() {
   return {
-    async signIn({ networkId, contractId, callbackUrl }) {
-      const keyPair = KeyPair.fromRandom("ed25519");
-
+    async signIn({ networkId, contractId, callbackUrl, publicKey }) {
       const url = new URL(`${walletUrl(networkId)}/login`);
       url.searchParams.set("contract_id", contractId);
-      url.searchParams.set("public_key", keyPair.getPublicKey().toString());
+      url.searchParams.set("public_key", publicKey);
       url.searchParams.set("success_url", callbackUrl);
       url.searchParams.set("failure_url", callbackUrl);
 
       return {
         url: url.toString(),
         state: {
-          publicKey: keyPair.getPublicKey().toString(),
-          privateKey: keyPair.toString(),
+          publicKey,
           networkId,
         },
       };

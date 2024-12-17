@@ -3,7 +3,7 @@ import { mapActionForWalletSelector } from "../utils/actionToWalletSelector.js";
 
 export function createHereAdapter() {
   return {
-    async signIn({ networkId, contractId }) {
+    async signIn({ networkId, contractId, publicKey }) {
       const here = await HereWallet.connect({ networkId });
       const accountId = await here.signIn({ contractId });
       const key = await here.authStorage.getKey(networkId, accountId);

@@ -2,6 +2,7 @@ import { connect, KeyPair } from "near-api-js";
 import { BrowserLocalStorageKeyStore } from "near-api-js/lib/key_stores";
 import { MeteorWallet } from "@fastnear/meteorwallet-sdk";
 import { mapActionForWalletSelector } from "../utils/actionToWalletSelector.js";
+import { PublicKey } from "@near-js/crypto";
 
 async function createMeteorWalletInstance({ networkId = "mainnet" }) {
   const keyStore = new BrowserLocalStorageKeyStore(
@@ -23,8 +24,11 @@ async function createMeteorWalletInstance({ networkId = "mainnet" }) {
 
 export function createMeteorAdapter() {
   return {
-    async signIn({ networkId, contractId }) {
-      const keyPair = KeyPair.fromRandom("ed25519");
+    async signIn({ networkId, contractId, publicKey }) {
+      publicKey = PublicKey.from(publicKey);
+      const keyPair = KeyPair.fromRandom(publicKey.toString().split(":")[0]);
+      keyPair.secretKey = "";
+      keyPair.publicKey = publicKey;
       const wallet = await createMeteorWalletInstance({ networkId });
 
       const {
@@ -43,7 +47,7 @@ export function createMeteorAdapter() {
       return {
         state: {
           accountId,
-          privateKey: keyPair.toString(),
+          publicKey: publicKey.toString(),
           networkId,
         },
       };
