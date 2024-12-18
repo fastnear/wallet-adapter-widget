@@ -27,7 +27,6 @@ export function createMeteorAdapter() {
     async signIn({ networkId, contractId, publicKey }) {
       publicKey = PublicKey.from(publicKey);
       const keyPair = KeyPair.fromRandom(publicKey.toString().split(":")[0]);
-      keyPair.secretKey = "";
       keyPair.publicKey = publicKey;
       const wallet = await createMeteorWalletInstance({ networkId });
 
